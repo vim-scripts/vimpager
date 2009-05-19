@@ -2,10 +2,10 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 0.8
+# Version 0.9
 
-files=$@
-if [ -z "$files" ]; then files="-"; fi
+file="$@"
+if [ -z "$file" ]; then file="-"; fi
 
 if uname -s | grep -iq cygwin; then
     cygwin=1
@@ -52,22 +52,22 @@ ppid() {
     fi
 }
 
-# Check if called from man or perldoc
+# Check if called from man, perldoc or pydoc
 if do_ps | grep -q '\(py\(thon\|doc\)\|man\|perl\(doc\|$\)\)\>'; then
     proc=$$
     while next_parent=`ppid $proc` && [ $next_parent != 1 ]; do
         if pproc $next_parent | grep -q 'man\>'; then
-            cat $files | sed -e 's/\[[^m]*m//g' | sed -e 's/.//g' | less_vim -c 'set ft=man' -; exit
+            cat $file | sed -e 's/\[[^m]*m//g' | sed -e 's/.//g' | less_vim -c 'set ft=man' -; exit
         elif pproc $next_parent | grep -q 'py\(thon\|doc\)\>'; then
-            cat $files | sed -e 's/\[[^m]*m//g' | sed -e 's/.//g' | less_vim -c 'set ft=man' -; exit
+            cat $file | sed -e 's/\[[^m]*m//g' | sed -e 's/.//g' | less_vim -c 'set ft=man' -; exit
         elif pproc $next_parent | grep -q 'perl\(doc\|$\)\>'; then
-            cat $files | sed -e 's/.//g' | less_vim -c 'set ft=man' -; exit
+            cat $file | sed -e 's/.//g' | less_vim -c 'set ft=man' -; exit
         fi
         proc=$next_parent
     done
 fi
 
-less_vim $files
+less_vim "$file"
 
 # CONTRIBUTORS:
 #
