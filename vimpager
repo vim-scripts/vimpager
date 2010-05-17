@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.2
+# Version 1.3
 
 file="$@"
 if [ -z "$file" ]; then file="-"; fi
@@ -24,6 +24,7 @@ less_vim() {
     -c 'runtime! macros/less.vim' \
     -c 'set foldlevel=999' \
     -c 'set mouse=h' \
+    -c 'set nonu' \
     -c 'nmap <ESC>u :nohlsearch<cr>' \
     "$@"
 }
