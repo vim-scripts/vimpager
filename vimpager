@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.4.3
+# Version 1.4.4
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -18,7 +18,13 @@ case `uname -s` in
 esac
 
 less_vim() {
-	vim -R \
+        if [ -n "$DISPLAY" ] && (vim -e -c 'let vimpager_use_gvim' -c q </dev/tty) | cut -d\# -f2 | \
+		head -1 | awk '$1 ~ /^1/ {t=1} END { exit 1-t }'; then
+		vim_cmd='gvim -geom="$COLUMNS"x"$LINES" -R'
+	else
+	        vim_cmd='vim -R'
+	fi
+	$vim_cmd \
 	-c 'let no_plugin_maps = 1' \
 	-c 'set scrolloff=999' \
 	-c 'runtime! macros/less.vim' \
