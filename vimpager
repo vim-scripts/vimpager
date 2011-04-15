@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.4.6
+# Version 1.4.7
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -92,7 +92,9 @@ trap "rm -rf /tmp/vimpager_$$" INT
 
 mkdir /tmp/vimpager_$$
 
-filename=/tmp/vimpager_${$}/${@:-stdin}
+filename=${@:-stdin}
+filename=`echo $filename | tr '/' '_'`
+filename=/tmp/vimpager_${$}/$filename
 
 case "$@" in
 	*.gz) gunzip -c "$@" | sed -e 's/\[[^m]*m//g' -e 's/.//g' > $filename ;;
@@ -100,7 +102,7 @@ case "$@" in
 	*) sed -e 's/\[[^m]*m//g' -e 's/.//g' "$@" > $filename ;;
 esac
 
-less_vim $filename
+less_vim $filename </dev/tty
 
 reset
 clear
