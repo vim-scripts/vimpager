@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.4.8
+# Version 1.4.9
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -168,7 +168,7 @@ if do_ptree | awk '$2 ~ /(^|\/)(man|perl(doc)?([0-9.]*)?|py(thon|doc|doc2))/ {t=
 	extra_cmd="set ft=man"
 fi
 
-trap "rm -rf /tmp/vimpager_$$" INT
+trap "rm -rf /tmp/vimpager_$$" HUP INT QUIT ILL TRAP KILL BUS TERM
 
 mkdir /tmp/vimpager_$$
 
@@ -190,9 +190,14 @@ fi
 
 less_vim -c "${extra_cmd:-echo}" $filename </dev/tty
 
+# terminal vim on OSX can screw up the terminal
 if [ -n "$osx" ]; then
-	reset
-	clear
+	case $vim_cmd in
+		vim*)
+			reset
+			clear
+			;;
+	esac
 fi
 
 # Give gvim/mvim time to open the file.
