@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.4.9
+# Version 1.5.0
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -80,7 +80,7 @@ less_vim() {
 	case $vim_cmd in
 		vim*)
 			$vim_cmd --noplugin \
-			-c 'set scrolloff=999 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
+			-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
 			-c 'nmap <ESC>u :nohlsearch<cr>' \
 			"${@:--}"
 			;;
@@ -125,7 +125,7 @@ less_vim() {
 			fi
 
 			$vim_cmd --noplugin \
-			-c 'set scrolloff=999 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
+			-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
 			-c 'nmap <ESC>u :nohlsearch<cr>' \
 			-c "${colors:-echo}" \
 			-c "${restore:-echo}" \
