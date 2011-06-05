@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.5.1
+# Version 1.5.2
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -201,14 +201,15 @@ fi
 less_vim -c "${extra_cmd:-echo}" $filename </dev/tty
 
 # terminal vim on OSX can screw up the terminal
-if [ -n "$osx" ]; then
-	case $vim_cmd in
-		vim*)
-			reset
-			clear
-			;;
-	esac
-fi
+# (but doesn't anymore for some reason...)
+#if [ -n "$osx" ]; then
+#	case $vim_cmd in
+#		vim*)
+#			reset
+#			clear
+#			;;
+#	esac
+#fi
 
 # Give gvim/mvim time to open the file.
 # On Cygwin we must also wait for the process to exit before the file can
