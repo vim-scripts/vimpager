@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.5.4
+# Version 1.5.5
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -93,19 +93,21 @@ less_vim() {
 		vimrc=$VIMPAGER_RC
 	elif [ -f ~/.vimpagerrc ]; then
 		vimrc=~/.vimpagerrc
+	elif [ -f ~/_vimpagerrc ]; then
+		vimrc=~/_vimpagerrc
 	fi
 
 	case $vim_cmd in
 		vim*)
 			if [ -n "$vimrc" ]; then
-				$vim_cmd --noplugin \
+				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				-u $vimrc \
 				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
 				"${@:--}"
 			else
-				$vim_cmd --noplugin \
+				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
@@ -113,19 +115,35 @@ less_vim() {
 			fi
 			;;
 		*) # gvim or mvim GUI
-			colors=`grep guifg ~/.gvimrc 2>/dev/null | head -1`
-			[ -n "$colors" ] || colors=`grep guifg ~/_gvimrc 2>/dev/null | head -1`
+			if [ -f ~/.gvimrc ]; then
+				gvimrc=~/.gvimrc
+			elif [ -f ~/_gvimrc ]; then
+				gvimrc=~/_gvimrc
+			elif [ -n "$cygwin" ]; then
+# this from Corinna at http://cygwin.com/ml/cygwin/2010-08/msg00246.html
+				_sid=$(grep "^$USER:" /etc/passwd | sed -e 's/[^:]*:[^:]*:[^:]*:[^:]*:[^:]*,\(S-1-5-[^:]*\):.*/\1/')
+				_prof=$(cat /proc/registry/HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows\ NT/CurrentVersion/ProfileList/${_sid}/ProfileImagePath)
+				
+				if [ -f "${_prof}/_gvimrc" ]; then
+					gvimrc="${_prof}/_gvimrc"
+				elif [ -f "${_prof}/.gvimrc" ]; then
+					gvimrc="${_prof}/.gvimrc"
+				fi
+
+				unset _sid
+				unset _prof
+			fi
+
+			[ -n "$gvimrc" ] && colors=`grep guifg $gvimrc 2>/dev/null | head -1`
 
 			# Check if the user maximized the window in ~/_gvimrc on Win32, if
 			# so restore on startup.
-			if [ -n "$cygwin" -o -n "$msys" ]; then
-				simalt=`grep simalt ~/_gvimrc 2>/dev/null | head -1`
-				[ -n "$simalt" ] || simalt=`grep simalt ~/.gvimrc 2>/dev/null | head -1`
+			if [ -n "$gvimrc" -a \( -n "$cygwin" -o -n "$msys" \) ]; then
+				simalt=`grep simalt $gvimrc 2>/dev/null | head -1`
+
 				if [ -n "$simalt" ]; then
-					case $vim_cmd in
-						gvim*) restore="simalt ~r"
-					esac
-				fi	
+					restore="simalt ~r"
+				fi
 			fi
 
 			if command -v tput > /dev/null; then
@@ -153,7 +171,7 @@ less_vim() {
 			fi
 
 			if [ -n "$vimrc" ]; then
-				$vim_cmd --noplugin \
+				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				-u $vimrc \
 				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
@@ -163,7 +181,7 @@ less_vim() {
 				-c "set lines=$lines | set columns=$cols" \
 				"${@:--}" &
 			else
-				$vim_cmd --noplugin \
+				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set mouse=h | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
@@ -254,6 +272,7 @@ less_vim -c "${extra_cmd:-echo}" $filename </dev/tty
 	while [ -d /tmp/vimpager_$$ ]; do
 		sleep 3
 		rm -rf /tmp/vimpager_$$ 2>/dev/null
+		rm -f gvim.exe.stackdump 2>/dev/null
 	done
 ) &
 
