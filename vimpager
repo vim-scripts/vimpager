@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.5.7
+# Version 1.5.8
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -103,13 +103,13 @@ less_vim() {
 				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				-u $vimrc \
-				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set nonu' \
+				-c 'runtime! macros/less.vim | source $MYVIMRC | set scrolloff=5 | set foldlevel=999 | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
 				"${@:--}"
 			else
 				$vim_cmd \
 				--cmd 'let vimpager=1' \
-				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set nonu' \
+				-c 'runtime! macros/less.vim | source $MYVIMRC | set scrolloff=5 | set foldlevel=999 | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
 				"${@:--}"
 			fi
@@ -123,7 +123,7 @@ less_vim() {
 # this from Corinna at http://cygwin.com/ml/cygwin/2010-08/msg00246.html
 				_sid=$(grep "^$USER:" /etc/passwd | sed -e 's/[^:]*:[^:]*:[^:]*:[^:]*:[^:]*,\(S-1-5-[^:]*\):.*/\1/')
 				_prof=$(cat /proc/registry/HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows\ NT/CurrentVersion/ProfileList/${_sid}/ProfileImagePath)
-				
+
 				if [ -f "${_prof}/_gvimrc" ]; then
 					gvimrc="${_prof}/_gvimrc"
 				elif [ -f "${_prof}/.gvimrc" ]; then
@@ -174,7 +174,7 @@ less_vim() {
 				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				-u $vimrc \
-				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set nonu' \
+				-c 'runtime! macros/less.vim | source $MYVIMRC | source $MYGVIMRC | set scrolloff=5 | set foldlevel=999 | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
 				-c "${colors:-echo}" \
 				-c "${restore:-echo}" \
@@ -183,7 +183,7 @@ less_vim() {
 			else
 				$vim_cmd \
 				--cmd 'let vimpager=1' \
-				-c 'set scrolloff=5 | runtime! macros/less.vim | set foldlevel=999 | set nonu' \
+				-c 'runtime! macros/less.vim | source $MYVIMRC | source $MYGVIMRC | set scrolloff=5 | set foldlevel=999 | set nonu' \
 				-c 'nmap <ESC>u :nohlsearch<cr>' \
 				-c "${colors:-echo}" \
 				-c "${restore:-echo}" \
