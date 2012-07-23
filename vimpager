@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.7.0
+# Version 1.7.1
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -145,14 +145,14 @@ less_vim() {
 				--cmd 'runtime! macros/less.vim' \
 				-u $vimrc \
 				-c 'set scrolloff='${scrolloff:-5}' | set foldlevel=999 | set nonu | silent! set nornu' \
-				-c 'nmap <ESC>u :nohlsearch<cr> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u> | noremap q :q<CR>' \
+				-c 'nmap <ESC>u :nohlsearch<cr> | noremap q :q<CR> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u>' \
 				"${@:--}"
 			else
 				$vim_cmd \
 				--cmd 'let vimpager=1' \
 				--cmd 'runtime! macros/less.vim' \
 				-c 'set scrolloff='${scrolloff:-5}' | set foldlevel=999 | set nonu | silent! set nornu' \
-				-c 'nmap <ESC>u :nohlsearch<cr> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u> | noremap q :q<CR>' \
+				-c 'nmap <ESC>u :nohlsearch<cr> | noremap q :q<CR> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u>' \
 				"${@:--}"
 			fi
 			;;
@@ -220,7 +220,7 @@ less_vim() {
 				--cmd 'runtime! macros/less.vim ' \
 				-u $vimrc \
 				-c 'set scrolloff='${scrolloff:-5}' | set foldlevel=999 | set nonu | silent! set nornu' \
-				-c 'nmap <ESC>u :nohlsearch<cr> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u> | noremap q :q<CR>' \
+				-c 'nmap <ESC>u :nohlsearch<cr> | noremap q :q<CR> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u>' \
 				-c "${colors:-echo}" \
 				-c "${restore:-echo}" \
 				-c "set lines=$lines | set columns=$cols" \
@@ -230,7 +230,7 @@ less_vim() {
 				--cmd 'let vimpager=1' \
 				--cmd 'runtime! macros/less.vim ' \
 				-c 'set scrolloff='${scrolloff:-5}' | set foldlevel=999 | set nonu | silent! set nornu' \
-				-c 'nmap <ESC>u :nohlsearch<cr> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u> | noremap q :q<CR>' \
+				-c 'nmap <ESC>u :nohlsearch<cr> | noremap q :q<CR> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u>' \
 				-c "${colors:-echo}" \
 				-c "${restore:-echo}" \
 				-c "set lines=$lines | set columns=$cols" \
@@ -356,5 +356,6 @@ less_vim -c "${extra_c:-echo}" --cmd "${extra_cmd:-echo}" "$filename" </dev/tty
 # Anselm Strauss <amsibamsi@gmail.com>
 # Anisse Astier <anisse@astier.eu>
 # Simon Olofsson <simon@olofsson.de>
+# lickel: Adam Lickel <adam@lickel.com>
 
 # vim:noet ts=8 sts=8 sw=8 tw=0:
