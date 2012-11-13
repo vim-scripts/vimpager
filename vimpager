@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.7.5
+# Version 1.7.6
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -52,17 +52,18 @@ if [ -z "${cols}" ]; then
 	no_pass_thru=1 # force loading vimpager
 fi
 
-# determine location of vimrc
+#erdetermine location of vimrc
+
+# first check for a user ~/.vimpagerrc
 if [ -n "${VIMPAGER_RC}" ]; then
 	vimrc=${VIMPAGER_RC}
 elif [ -f ~/.vimpagerrc ]; then
 	vimrc=~/.vimpagerrc
 elif [ -f ~/_vimpagerrc ]; then
 	vimrc=~/_vimpagerrc
-elif [ -f /etc/vimpagerrc ]; then
-	vimrc=/etc/vimpagerrc
 fi
 
+# then check if the user has a ~/.vimrc
 if [ -z "${vimrc}" ]; then
 	trap "rm -f ${tmp}/vimpager_vimrc_${$}" HUP INT QUIT ILL TRAP KILL BUS TERM
 
@@ -72,12 +73,21 @@ if [ -z "${vimrc}" ]; then
 	rm -f ${tmp}/vimpager_vimrc_${$}
 fi
 
-[ -z "${vimrc}" ] && vimrc=NORC
+# then check for a global /etc/vimpagerrc and fall back to NORC
+if [ -z "${vimrc}" ]; then
+	if [ -f /usr/local/etc/vimpagerrc ]; then
+		vimrc=/usr/local/etc/vimpagerrc
+	elif [ -f /etc/vimpagerrc ]; then
+		vimrc=/etc/vimpagerrc
+	else
+		vimrc=NORC
+	fi
+fi
 
 # read settings
 trap "rm -f ${tmp}/vimpager_opts_${$}" HUP INT QUIT ILL TRAP KILL BUS TERM
 
-vim -u ${vimrc} -E --cmd 'set nocp' -c '
+vim -u "${vimrc}" -E --cmd 'set nocp' -c '
 	if !exists("vimpager_use_gvim")
 		let vimpager_use_gvim=0
 	endif
@@ -159,7 +169,7 @@ if [ -n "${use_gvim}" ]; then
 	elif [ -n "${cygwin}" ]; then
 		if command -v gvim >/dev/null; then
 			# The Cygwin gvim uses X
-			if [ -z "$win32_native_gvim" ]; then
+			if [ -z "${win32_native_gvim}" ]; then
 				if [ -z "${DISPLAY}" ]; then
 					vim_cmd="vim -R"
 				else
@@ -202,7 +212,7 @@ less_vim() {
 			fi
 
 			${vim_cmd} \
-				-u ${vimrc} \
+				-u "${vimrc}" \
 				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
 				-c "set scrolloff=${scrolloff:-5} | set foldlevel=999 | set nonu | silent! set nornu |
 				    nmap <ESC>u :nohlsearch<cr> | noremap q :q<CR> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u>" \
@@ -214,7 +224,7 @@ less_vim() {
 			# Check if the user maximized the window in ~/_gvimrc on Win32, if
 			# so restore on startup.
 			if [ -n "${gvimrc}" -a \( -n "${cygwin}" -o -n "${msys}" \) ]; then
-				simalt=$(grep simalt ${gvimrc} 2>/dev/null | head -1)
+				simalt=$(grep simalt "${gvimrc}" 2>/dev/null | head -1)
 
 				if [ -n "${simalt}" ]; then
 					restore="simalt ~r"
@@ -222,7 +232,7 @@ less_vim() {
 			fi
 
 			${vim_cmd} \
-				-u ${vimrc} \
+				-u "${vimrc}" \
 				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
 				-c "set scrolloff=${scrolloff:-5} | set foldlevel=999 | set nonu | silent! set nornu |
 				    nmap <ESC>u :nohlsearch<cr> | noremap q :q<CR> | nnoremap <Down> 1<C-d> | nnoremap <Up> 1<C-u> |
@@ -327,16 +337,24 @@ filter() {
 }
 
 filename=${@:-stdin}
-filename=$(echo "$filename" | tr '/' '_')
+filename=$(echo "${filename}" | tr '/' '_')
 filename="${tmp}/vimpager_${$}/${filename}"
 
-case "${@}" in
+case $(echo "${@}" | tr 'A-Z' 'a-z') in
 	*.gz) 
-		filename=$(echo ${filename} | sed -e 's/\.gz$//')
+		filename=$(echo ${filename} | sed -e 's/\.[Gg][Zz]$//')
 		gunzip -c "${@}" | filter 2> "${filename}"
 		;;
-	*.Z)
-		filename=$(echo ${filename} | sed -e 's/\.Z$//')
+	*.bz2)
+		filename=$(echo ${filename} | sed -e 's/\.[Bb][Zz]2$//')
+		bunzip2 -c "${@}" | filter 2> "${filename}"
+		;;
+	*.xz)
+		filename=$(echo ${filename} | sed -e 's/\.[Xx][Zz]$//')
+		xzcat -c "${@}" | filter 2> "${filename}"
+		;;
+	*.z)
+		filename=$(echo ${filename} | sed -e 's/\.[Zz]$//')
 		uncompress -c "${@}" | filter 2> "${filename}"
 		;;
 	*)
@@ -362,7 +380,7 @@ fi
 less_vim -c "${extra_c:-echo}" --cmd "${extra_cmd:-echo}" "${filename}" </dev/tty
 
 # Give gvim/mvim time to open the file.
-# On Cygwin we must also wait for the process to exit before the file can
+# On Win32 we must also wait for the process to exit before the file can
 # be deleted.
 (
 	while [ -d ${tmp}/vimpager_${$} ]; do
