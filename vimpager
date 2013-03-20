@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 1.7.8
+# Version 1.8.0
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -18,6 +18,7 @@ case $(uname -s) in
 	MINGW*) msys=1 ;;
 	OpenBSD) openbsd=1; bsd=1 ;;
 	FreeBSD) freebsd=1; bsd=1 ;;
+	NetBSD) netbsd=1; bsd=1 ;;
 	*) bsd=1 ;;
 esac
 
@@ -301,6 +302,8 @@ _do_ptree() {
 		ps awo pid=,ppid=,command= | awk_pstree ${$}
 	elif [ -n "${freebsd}" ]; then
 		ps aw -o pid= -o ppid= -o command= | awk_pstree_freebsd ${$}
+	elif [ -n "${netbsd}" ]; then
+		ps aw -o pid= -o ppid= -o command= | awk_pstree ${$}
 	else
 		# Tested on Linux and OS X
 		ps awo pid=,ppid=,comm= | awk_pstree ${$}
@@ -472,5 +475,6 @@ less_vim -c "${extra_c:-echo}" --cmd "${extra_cmd:-echo}" "${filename}" </dev/tt
 # krijesta: Chris Chambers <krijesta@google.com>
 # vincer: vince rosso <vince@locationlabs.com>
 # justinkb: Paul Mulders <justinkb@gmail.com>
+# nonakap: NONAKA Kimihiro <nonakap@gmail.com>
 
 # vim:noet ts=8 sts=8 sw=8 tw=0:
