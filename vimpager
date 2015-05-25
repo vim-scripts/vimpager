@@ -2,7 +2,7 @@
 
 # Script for using ViM as a PAGER.
 # Based on Bram's less.sh.
-# Version 2.03
+# Version 2.04
 # git://github.com/rkitover/vimpager.git
 
 # Just pass through if not on a tty
@@ -451,13 +451,19 @@ tail_n() {
 			_tail_syntax=new
 		else
 			_tail_syntax=old
+
+			if ! tail -1 -- "$0" > /dev/null 2>&1; then
+				_tail_no_double_dash=1
+			fi
 		fi
 	fi
 
 	if [ "$_tail_syntax" = "new" ]; then
-		tail -n $_lines -- "$@"
+		tail -n "$_lines" -- "$@"
+	elif [ -z "$_tail_no_double_dash" ]; then
+		tail -"$_lines" -- "$@"
 	else
-		tail -$_lines -- "$@"
+		tail -"$_lines" "$@"
 	fi
 }
 
@@ -4419,5 +4425,6 @@ main "$@"
 # ghedo: Alessandro Ghedini <alessandro@ghedini.me>
 # guiniol: Guillaume Brogi <gui-gui@netcourrier.com>
 # leandro-lucarella-sociomantic: Leandro Lucarella <leandro.lucarella@sociomantic.com>
+# derekschrok: Derek Schrock <dereks@lifeofadishwasher.com>
 
 # vim:noet ts=8 sts=8 sw=8 tw=0:
